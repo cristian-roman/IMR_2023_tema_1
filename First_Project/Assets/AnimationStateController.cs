@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AnimationStateController : MonoBehaviour
 {
-    private const float animationChangingPoint = 0.1f;
+    private const float animationChangingPoint = 10f;
     
     private Animator animator;
     public GameObject targetObject;
@@ -25,8 +25,8 @@ public class AnimationStateController : MonoBehaviour
         bool isAttacking = animator.GetBool(isAttackingHash);
         if (targetObject != null)
         {
-            distanceToTarget = Vector3.Distance(transform.position, targetObject.transform.position);
-        
+            distanceToTarget = Vector3.Distance(targetObject.transform.position, Vector3.zero);
+            
             if (distanceToTarget < animationChangingPoint)
             {
                 // Play the "Attacking" animation
@@ -38,5 +38,15 @@ public class AnimationStateController : MonoBehaviour
                 animator.SetBool(isAttackingHash, false);
             }
         }
+        
+        MoveObject();
+    }
+
+    void MoveObject()
+    {
+        float zPosition = Mathf.PingPong(Time.time * 0.1f, 1) * 30f; // Oscillate between 0 and 30 over 1 second
+        Vector3 newPosition = targetObject.transform.position;
+        newPosition.z = zPosition;
+        targetObject.transform.position = newPosition;
     }
 }
