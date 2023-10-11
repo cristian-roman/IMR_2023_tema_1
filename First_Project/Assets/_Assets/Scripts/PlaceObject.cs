@@ -1,49 +1,95 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using EnhancedTouch = UnityEngine.InputSystem.EnhancedTouch;
 
-public class PlaceObject : MonoBehaviour
-{
+    /// <summary>
+    /// Listens for touch events and performs an AR raycast from the screen touch point.
+    /// AR raycasts will only hit detected trackables like feature points and planes.
+    ///
+    /// If a raycast hits a trackable, the <see cref="placedPrefab"/> is instantiated
+    /// and moved to the hit position.
+    /// </summary>
+    [RequireComponent(typeof(ARRaycastManager))]
+    public class PlaceObject : MonoBehaviour
+    {
+        [SerializeField]
+        [Tooltip("Instantiates this prefab on a plane at the touch location.")]
+        GameObject m_PlacedPrefab;
+
+    UnityEvent placementUpdate;
+
     [SerializeField]
-    private GameObject prefab;
+    GameObject visualObject;
 
-    private ARRaycastManager aRRaycastManager;
-    private ARPlaneManager aRPlaneManager;
-    private List<ARRaycastHit> hits = new List<ARRaycastHit>();
-
-    private void Awake()
-    {
-        aRRaycastManager = GetComponent<ARRaycastManager>();
-        aRPlaneManager = GetComponent<ARPlaneManager>();
-    }
-
-    private void OnEnable()
-    {
-        EnhancedTouch.TouchSimulation.Enable();
-        EnhancedTouch.EnhancedTouchSupport.Enable();
-        EnhancedTouch.Touch.onFingerDown += FingerDown;
-    }
-
-    private void OnDisable()
-    {
-        EnhancedTouch.TouchSimulation.Disable();
-        EnhancedTouch.EnhancedTouchSupport.Disable();
-        EnhancedTouch.Touch.onFingerDown -= FingerDown;
-    }
-
-    private void FingerDown(EnhancedTouch.Finger finger)
-    {
-        if (finger.index != 0) return;
-
-        if (aRRaycastManager.Raycast(finger.currentTouch.screenPosition, hits, TrackableType.PlaneWithinPolygon))
+    /// <summary>
+    /// The prefab to instantiate on touch.
+    /// </summary>
+    public GameObject placedPrefab
         {
-            foreach (ARRaycastHit hit in hits)
+            get { return m_PlacedPrefab; }
+            set { m_PlacedPrefab = value; }
+        }
+
+        /// <summary>
+        /// The object instantiated as a result of a successful raycast intersection with a plane.
+        /// </summary>
+        public GameObject spawnedObject { get; private set; }
+
+        void Awake()
+        {
+            m_RaycastManager = GetComponent<ARRaycastManager>();
+
+            if (placementUpdate == null)
+                placementUpdate = new UnityEvent();
+
+                placementUpdate.AddListener(DiableVisual);
+        }
+
+        bool TryGetTouchPosition(out Vector2 touchPosition)
+        {
+            if (Input.touchCount > 0)
             {
-                Pose pose = hit.pose;
-                GameObject obj = Instantiate(prefab, pose.position, pose.rotation);
+                touchPosition = Input.GetTouch(0).position;
+                return true;
+            }
+
+            touchPosition = default;
+            return false;
+        }
+
+        void Update()
+        {
+            if (!TryGetTouchPosition(out Vector2 touchPosition))
+                return;
+
+            if (m_RaycastManager.Raycast(touchPosition, s_Hits, TrackableType.PlaneWithinPolygon))
+            {
+                // Raycast hits are sorted by distance, so the first one
+                // will be the closest hit.
+                var hitPose = s_Hits[0].pose;
+            
+                if (spawnedObject == null)
+                {
+                    spawnedObject = Instantiate(m_PlacedPrefab, hitPose.position, hitPose.rotation);
+                    
+                }
+                else
+                {
+                    //repositioning of the object 
+                    spawnedObject.transform.position = hitPose.position;
+                }
+                    placementUpdate.Invoke();
             }
         }
+
+    public void DiableVisual()
+    {
+        visualObject.SetActive(false);
     }
-}
+
+        static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
+
+        ARRaycastManager m_RaycastManager;
+    }
