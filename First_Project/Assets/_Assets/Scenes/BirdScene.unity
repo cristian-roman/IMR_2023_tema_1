@@ -328,6 +328,7 @@ GameObject:
   - component: {fileID: 388525034}
   - component: {fileID: 388525036}
   - component: {fileID: 388525035}
+  - component: {fileID: 388525039}
   m_Layer: 0
   m_Name: AR Session Origin
   m_TagString: Untagged
@@ -404,7 +405,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f0ba2fa6e56965419b62cccebbcc66a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PlacedPrefab: {fileID: 6788538757290762323, guid: 6a4ce771110642b4080bff0acdfa51e8,
+  birdsInteraction: {fileID: 0}
+  m_firstPlacedPrefab: {fileID: 6788538757290762323, guid: 6a4ce771110642b4080bff0acdfa51e8,
+    type: 3}
+  m_secondPlacedPrefab: {fileID: 6788538757290762323, guid: 6a4ce771110642b4080bff0acdfa51e8,
     type: 3}
   visualObject: {fileID: 1396278205}
 --- !u!114 &388525036
@@ -447,6 +451,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_DestroyOnRemoval: 1
+--- !u!114 &388525039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 388525029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e8d50f3e6d58e94a9562fdad067e6b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 1
+  proximityThreshold: 0.1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

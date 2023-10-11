@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using System;
 
     /// <summary>
     /// Listens for touch events and performs an AR raycast from the screen touch point.
@@ -14,32 +15,51 @@ using UnityEngine.XR.ARSubsystems;
     [RequireComponent(typeof(ARRaycastManager))]
     public class PlaceObject : MonoBehaviour
     {
+		public MeetAnimation birdsInteraction;
+
+        private static System.Random rnd;
+        static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
+
+        ARRaycastManager m_RaycastManager;
+        
         [SerializeField]
         [Tooltip("Instantiates this prefab on a plane at the touch location.")]
-        GameObject m_PlacedPrefab;
+        GameObject m_firstPlacedPrefab;
+        
+        [SerializeField]
+        [Tooltip("Instantiates this prefab on a plane at the touch location.")]
+        GameObject m_secondPlacedPrefab;
 
-    UnityEvent placementUpdate;
+        UnityEvent placementUpdate;
 
-    [SerializeField]
-    GameObject visualObject;
+        [SerializeField]
+        GameObject visualObject;
 
-    /// <summary>
-    /// The prefab to instantiate on touch.
-    /// </summary>
-    public GameObject placedPrefab
+        /// <summary>
+        /// The prefab to instantiate on touch.
+        /// </summary>
+        public GameObject firstBird
         {
-            get { return m_PlacedPrefab; }
-            set { m_PlacedPrefab = value; }
+            get { return m_firstPlacedPrefab; }
+            set { m_firstPlacedPrefab = value; }
         }
-
+        
+        public GameObject secondBird
+        {
+            get { return m_firstPlacedPrefab; }
+            set { m_secondPlacedPrefab = value; }
+        }
         /// <summary>
         /// The object instantiated as a result of a successful raycast intersection with a plane.
         /// </summary>
-        public GameObject spawnedObject { get; private set; }
+        public GameObject firstSpawnedObject { get; private set; }
+        public GameObject secondSpawnedObject { get; private set; }
 
         void Awake()
         {
             m_RaycastManager = GetComponent<ARRaycastManager>();
+            
+            rnd = new System.Random();
 
             if (placementUpdate == null)
                 placementUpdate = new UnityEvent();
@@ -70,26 +90,40 @@ using UnityEngine.XR.ARSubsystems;
                 // will be the closest hit.
                 var hitPose = s_Hits[0].pose;
             
-                if (spawnedObject == null)
+                if (firstSpawnedObject == null)
                 {
-                    spawnedObject = Instantiate(m_PlacedPrefab, hitPose.position, hitPose.rotation);
+                    Quaternion rotation = Quaternion.Euler(0, 180f, 0f);
+                    firstSpawnedObject = Instantiate(m_firstPlacedPrefab, hitPose.position, rotation);
+					birdsInteraction.SetShape(firstSpawnedObject);
+					birdsInteraction.SetAnimator(firstSpawnedObject.GetComponent<Animator>());
                     
+                }
+                else if (secondSpawnedObject == null)
+                {
+                    Quaternion rotation = Quaternion.Euler(0f, 180f, 0f);
+                    secondSpawnedObject = Instantiate(m_secondPlacedPrefab, hitPose.position, rotation);
+					birdsInteraction.SetShape(secondSpawnedObject);
+					birdsInteraction.SetAnimator(secondSpawnedObject.GetComponent<Animator>());
                 }
                 else
                 {
-                    //repositioning of the object 
-                    spawnedObject.transform.position = hitPose.position;
+                    switch((int)rnd.Next(2))
+                    {
+                        case 0:
+                            firstSpawnedObject.transform.position = hitPose.position;
+                            break;
+                        default:
+                            secondSpawnedObject.transform.position = hitPose.position;
+                            break;
+                    }
                 }
-                    placementUpdate.Invoke();
+
+                placementUpdate.Invoke();
             }
         }
 
-    public void DiableVisual()
-    {
-        visualObject.SetActive(false);
-    }
-
-        static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
-
-        ARRaycastManager m_RaycastManager;
+        public void DiableVisual()
+        {
+            visualObject.SetActive(false);
+        }
     }
