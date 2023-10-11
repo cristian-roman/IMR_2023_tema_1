@@ -4,6 +4,7 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using EnhancedTouch = UnityEngine.InputSystem.EnhancedTouch;
 
+[RequireComponent(typeof(ARRaycastManager),typeof(ARPlaneManager))]
 public class PlaceObject : MonoBehaviour
 {
     [SerializeField]
@@ -12,6 +13,7 @@ public class PlaceObject : MonoBehaviour
     private ARRaycastManager aRRaycastManager;
     private ARPlaneManager aRPlaneManager;
     private List<ARRaycastHit> hits = new List<ARRaycastHit>();
+
 
     private void Awake()
     {
