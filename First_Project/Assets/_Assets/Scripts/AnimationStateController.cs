@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AnimationStateController : MonoBehaviour
 {
-    private const float animationChangingPoint = 10f;
+    private const float animationChangingPoint = 7.5f;
     
     private Animator animator;
     public GameObject targetObject;
@@ -44,7 +44,7 @@ public class AnimationStateController : MonoBehaviour
 
     void MoveObject()
     {
-        float zPosition = Mathf.PingPong(Time.time * 0.1f, 1) * 30f; // Oscillate between 0 and 30 over 1 second
+        float zPosition = Mathf.PingPong(Time.time * 0.1f, 1) * 20f; // Oscillate between 0 and 30 over 1 second
         Vector3 newPosition = targetObject.transform.position;
         newPosition.z = zPosition;
         targetObject.transform.position = newPosition;

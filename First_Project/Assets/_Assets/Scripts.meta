@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:First_Project/Assets/Scripts.meta
+guid: aa414dbf6f6c9854facccf835d92510c
+========
 guid: 3546fb5d9667e2749a83a25e7f73c737
+>>>>>>>> main:First_Project/Assets/_Assets/Scripts.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
