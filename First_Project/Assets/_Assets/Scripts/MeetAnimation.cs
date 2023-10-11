@@ -4,76 +4,32 @@ using UnityEngine;
 
 public class MeetAnimation : MonoBehaviour
 {
-    public float moveSpeed = 1.0f;  // Speed at which the birds move towards each other
-    public float proximityThreshold = 0.1f;  // Adjust this value to set how close the birds need to be to trigger the interaction
+    private Animator animator;
+    private GameObject bird;
 
-	private Animator bird1Animator;
-	private Animator bird2Animator;
-
-    private GameObject bird1;  // Reference to the first bird
-    private GameObject bird2;  // Reference to the second bird
-
-    void Update()
+    public void SetAnimator(Animator anim)
     {
-        // Check if both birds are instantiated and close enough
-        if (bird1 != null && bird2 != null)
-        {
-            MoveShapesTowardsEachOther();
-			PlayWalkingAnimation();
+        animator = anim;
+    }
 
-			if (AreShapesClose())
-            {
-                PlayAttackAnimation();
-            }
+    public void SetShape(GameObject obj)
+    {
+        bird = obj;
+    }
+
+    public void PlayBounceAnimation()
+    {
+        if (animator != null)
+        {
+            animator.Play("Bounce"); 
         }
     }
 
-    bool AreShapesClose()
+    public void PlayAttackAnimation()
     {
-        float distance = Vector3.Distance(bird1.transform.position, bird2.transform.position);
-        return distance < proximityThreshold;
-    }
-
-    void MoveShapesTowardsEachOther()
-    {
-        Vector3 direction = (bird2.transform.position - bird1.transform.position).normalized;
-        bird1.transform.Translate(direction * moveSpeed * Time.deltaTime);
-        bird2.transform.Translate(-direction * moveSpeed * Time.deltaTime);
-    }
-
-    void PlayAttackAnimation()
-    {
-      	bird1Animator.SetTrigger("Attacking");
-		bird2Animator.SetTrigger("Attacking");
-    }
-
-	void PlayWalkingAnimation()
-	{
-		bird1Animator.SetTrigger("Walking");
-        bird2Animator.SetTrigger("Walking");
-	}
-
-    public void SetShape(GameObject bird)
-    {
-        if (bird1 == null)
+        if (animator != null)
         {
-            bird1 = bird;
-        }
-        else if (bird2 == null)
-        {
-            bird2 = bird;
-        }
-    }
-
-	public void SetAnimator(Animator animator)
-    {
-       if(bird1Animator == null)
-        {
-            bird1Animator = animator;
-        }
-        else if (bird2Animator == null)
-        {
-            bird2Animator = animator;
+            animator.Play("Attack"); 
         }
     }
 }

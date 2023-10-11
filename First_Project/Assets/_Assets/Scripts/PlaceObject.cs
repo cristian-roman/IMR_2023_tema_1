@@ -46,7 +46,7 @@ using System;
         
         public GameObject secondBird
         {
-            get { return m_firstPlacedPrefab; }
+            get { return m_secondPlacedPrefab; }
             set { m_secondPlacedPrefab = value; }
         }
         /// <summary>
@@ -79,50 +79,47 @@ using System;
             return false;
         }
 
-        void Update()
+    void Update()
+    {
+        if (!TryGetTouchPosition(out Vector2 touchPosition))
+            return;
+
+        if (m_RaycastManager.Raycast(touchPosition, s_Hits, TrackableType.PlaneWithinPolygon))
         {
-            if (!TryGetTouchPosition(out Vector2 touchPosition))
-                return;
+            var hitPose = s_Hits[0].pose;
 
-            if (m_RaycastManager.Raycast(touchPosition, s_Hits, TrackableType.PlaneWithinPolygon))
+            if (firstSpawnedObject == null)
             {
-                // Raycast hits are sorted by distance, so the first one
-                // will be the closest hit.
-                var hitPose = s_Hits[0].pose;
-            
-                if (firstSpawnedObject == null)
-                {
-                    Quaternion rotation = Quaternion.Euler(0, 180f, 0f);
-                    firstSpawnedObject = Instantiate(m_firstPlacedPrefab, hitPose.position, rotation);
-					birdsInteraction.SetShape(firstSpawnedObject);
-					birdsInteraction.SetAnimator(firstSpawnedObject.GetComponent<Animator>());
-                    
-                }
-                else if (secondSpawnedObject == null)
-                {
-                    Quaternion rotation = Quaternion.Euler(0f, 180f, 0f);
-                    secondSpawnedObject = Instantiate(m_secondPlacedPrefab, hitPose.position, rotation);
-					birdsInteraction.SetShape(secondSpawnedObject);
-					birdsInteraction.SetAnimator(secondSpawnedObject.GetComponent<Animator>());
-                }
-                else
-                {
-                    switch((int)rnd.Next(2))
-                    {
-                        case 0:
-                            firstSpawnedObject.transform.position = hitPose.position;
-                            break;
-                        default:
-                            secondSpawnedObject.transform.position = hitPose.position;
-                            break;
-                    }
-                }
-
-                placementUpdate.Invoke();
+                // Code for placing the first bird (as before)
+                Quaternion rotation = Quaternion.Euler(0, 180f, 0f);
+                firstSpawnedObject = Instantiate(m_firstPlacedPrefab, hitPose.position, rotation);
+                birdsInteraction.SetShape(firstSpawnedObject);
+                birdsInteraction.SetAnimator(firstSpawnedObject.GetComponent<Animator>());
             }
-        }
+            else if (secondSpawnedObject == null)
+            {
+                // Code for placing the second bird (as before)
+                Quaternion rotation = Quaternion.Euler(0f, 180f, 0f);
+                secondSpawnedObject = Instantiate(m_secondPlacedPrefab, hitPose.position, rotation);
+                birdsInteraction.SetShape(secondSpawnedObject);
+                birdsInteraction.SetAnimator(secondSpawnedObject.GetComponent<Animator>());
+            }
+            else
+            {
+                // Code for replacing the first bird when a third tap occurs
+                Quaternion rotation = Quaternion.Euler(0, 180f, 0f);
+                Destroy(firstSpawnedObject); // Destroy the first bird
+                firstSpawnedObject = Instantiate(m_firstPlacedPrefab, hitPose.position, rotation);
+                birdsInteraction.SetShape(firstSpawnedObject);
+                birdsInteraction.SetAnimator(firstSpawnedObject.GetComponent<Animator>());
+            }
 
-        public void DiableVisual()
+            placementUpdate.Invoke();
+        }
+    }
+
+
+    public void DiableVisual()
         {
             visualObject.SetActive(false);
         }
