@@ -15,8 +15,6 @@ using System;
     [RequireComponent(typeof(ARRaycastManager))]
     public class PlaceObject : MonoBehaviour
     {
-		public MeetAnimation birdsInteraction;
-
         private static System.Random rnd;
         static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
 
@@ -94,16 +92,11 @@ using System;
                 {
                     Quaternion rotation = Quaternion.Euler(0, 180f, 0f);
                     firstSpawnedObject = Instantiate(m_firstPlacedPrefab, hitPose.position, rotation);
-					birdsInteraction.SetShape(firstSpawnedObject);
-					birdsInteraction.SetAnimator(firstSpawnedObject.GetComponent<Animator>());
-                    
                 }
                 else if (secondSpawnedObject == null)
                 {
                     Quaternion rotation = Quaternion.Euler(0f, 180f, 0f);
                     secondSpawnedObject = Instantiate(m_secondPlacedPrefab, hitPose.position, rotation);
-					birdsInteraction.SetShape(secondSpawnedObject);
-					birdsInteraction.SetAnimator(secondSpawnedObject.GetComponent<Animator>());
                 }
                 else
                 {
