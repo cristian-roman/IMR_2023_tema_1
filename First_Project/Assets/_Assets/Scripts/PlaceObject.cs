@@ -15,6 +15,8 @@ using System;
     [RequireComponent(typeof(ARRaycastManager))]
     public class PlaceObject : MonoBehaviour
     {
+        public float _betweenDistance = 0.1f;
+        
         private static System.Random rnd;
         static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
 
@@ -44,7 +46,7 @@ using System;
         
         public GameObject secondBird
         {
-            get { return m_firstPlacedPrefab; }
+            get { return m_secondPlacedPrefab; }
             set { m_secondPlacedPrefab = value; }
         }
         /// <summary>
@@ -79,6 +81,33 @@ using System;
 
         void Update()
         {
+            if (firstSpawnedObject != null && secondSpawnedObject != null)
+            {
+                var distance = Vector3.Distance(firstSpawnedObject.transform.position, secondSpawnedObject.transform.position);
+                if (distance < _betweenDistance)
+                {
+                    Animator animator = firstSpawnedObject.GetComponent<Animator>();
+                    animator.SetBool("IsAttacking", true);
+                    
+                    animator = secondSpawnedObject.GetComponent<Animator>();
+                    animator.SetBool("IsAttacking", true);
+                   
+                    // Make the birds face each other
+                    Vector3 direction = secondSpawnedObject.transform.position - firstSpawnedObject.transform.position;
+                    Quaternion lookRotation = Quaternion.LookRotation(direction);
+                    firstSpawnedObject.transform.rotation = Quaternion.Euler(0, lookRotation.eulerAngles.y, 0);
+                    secondSpawnedObject.transform.rotation = Quaternion.Euler(0, lookRotation.eulerAngles.y + 180, 0);
+                }
+                else
+                {
+                    Animator animator = firstSpawnedObject.GetComponent<Animator>();
+                    animator.SetBool("IsAttacking", false);
+                    
+                    animator = secondSpawnedObject.GetComponent<Animator>();
+                    animator.SetBool("IsAttacking", false);
+                }
+            }
+            
             if (!TryGetTouchPosition(out Vector2 touchPosition))
                 return;
 
@@ -90,12 +119,12 @@ using System;
             
                 if (firstSpawnedObject == null)
                 {
-                    Quaternion rotation = Quaternion.Euler(0, 180f, 0f);
+                    Quaternion rotation = Quaternion.Euler(0, 0f, 0f);
                     firstSpawnedObject = Instantiate(m_firstPlacedPrefab, hitPose.position, rotation);
                 }
                 else if (secondSpawnedObject == null)
                 {
-                    Quaternion rotation = Quaternion.Euler(0f, 180f, 0f);
+                    Quaternion rotation = Quaternion.Euler(0f, 0f, 0f);
                     secondSpawnedObject = Instantiate(m_secondPlacedPrefab, hitPose.position, rotation);
                 }
                 else
@@ -110,11 +139,9 @@ using System;
                             break;
                     }
                 }
-
                 placementUpdate.Invoke();
             }
         }
-
         public void DiableVisual()
         {
             visualObject.SetActive(false);
