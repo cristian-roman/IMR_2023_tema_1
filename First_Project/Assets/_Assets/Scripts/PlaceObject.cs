@@ -5,17 +5,10 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using System;
 
-    /// <summary>
-    /// Listens for touch events and performs an AR raycast from the screen touch point.
-    /// AR raycasts will only hit detected trackables like feature points and planes.
-    ///
-    /// If a raycast hits a trackable, the <see cref="placedPrefab"/> is instantiated
-    /// and moved to the hit position.
-    /// </summary>
     [RequireComponent(typeof(ARRaycastManager))]
     public class PlaceObject : MonoBehaviour
     {
-        public float _betweenDistance = 0.1f;
+        public float _betweenDistance = 0.3f;
         
         private static System.Random rnd;
         static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
@@ -129,15 +122,9 @@ using System;
                 }
                 else
                 {
-                    switch((int)rnd.Next(2))
-                    {
-                        case 0:
-                            firstSpawnedObject.transform.position = hitPose.position;
-                            break;
-                        default:
-                            secondSpawnedObject.transform.position = hitPose.position;
-                            break;
-                    }
+                    Quaternion rotation = Quaternion.Euler(0f, 0f, 0f);
+                    Destroy(secondSpawnedObject);
+                    secondSpawnedObject = Instantiate(m_secondPlacedPrefab, hitPose.position, rotation);
                 }
                 placementUpdate.Invoke();
             }
