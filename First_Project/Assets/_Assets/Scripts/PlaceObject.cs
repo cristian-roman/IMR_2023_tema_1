@@ -8,20 +8,20 @@ using System;
     [RequireComponent(typeof(ARRaycastManager))]
     public class PlaceObject : MonoBehaviour
     {
-        public float _betweenDistance = 0.3f;
+        public float BetweenDistance = 0.3f;
         
         private static System.Random rnd;
-        static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
+        static List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
-        ARRaycastManager m_RaycastManager;
+        ARRaycastManager rayCastManager;
         
         [SerializeField]
         [Tooltip("Instantiates this prefab on a plane at the touch location.")]
-        GameObject m_firstPlacedPrefab;
+        GameObject firstPlacedPrefab;
         
         [SerializeField]
         [Tooltip("Instantiates this prefab on a plane at the touch location.")]
-        GameObject m_secondPlacedPrefab;
+        GameObject secondPlacedPrefab;
 
         UnityEvent placementUpdate;
 
@@ -33,14 +33,14 @@ using System;
         /// </summary>
         public GameObject firstBird
         {
-            get { return m_firstPlacedPrefab; }
-            set { m_firstPlacedPrefab = value; }
+            get { return firstPlacedPrefab; }
+            set { firstPlacedPrefab = value; }
         }
         
         public GameObject secondBird
         {
-            get { return m_secondPlacedPrefab; }
-            set { m_secondPlacedPrefab = value; }
+            get { return secondPlacedPrefab; }
+            set { secondPlacedPrefab = value; }
         }
         /// <summary>
         /// The object instantiated as a result of a successful raycast intersection with a plane.
@@ -50,7 +50,7 @@ using System;
 
         void Awake()
         {
-            m_RaycastManager = GetComponent<ARRaycastManager>();
+            rayCastManager = GetComponent<ARRaycastManager>();
             
             rnd = new System.Random();
 
@@ -77,7 +77,7 @@ using System;
             if (firstSpawnedObject != null && secondSpawnedObject != null)
             {
                 var distance = Vector3.Distance(firstSpawnedObject.transform.position, secondSpawnedObject.transform.position);
-                if (distance < _betweenDistance)
+                if (distance < BetweenDistance)
                 {
                     Animator animator = firstSpawnedObject.GetComponent<Animator>();
                     animator.SetBool("IsAttacking", true);
@@ -104,27 +104,27 @@ using System;
             if (!TryGetTouchPosition(out Vector2 touchPosition))
                 return;
 
-            if (m_RaycastManager.Raycast(touchPosition, s_Hits, TrackableType.PlaneWithinPolygon))
+            if (rayCastManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
             {
                 // Raycast hits are sorted by distance, so the first one
                 // will be the closest hit.
-                var hitPose = s_Hits[0].pose;
+                var hitPose = hits[0].pose;
             
                 if (firstSpawnedObject == null)
                 {
                     Quaternion rotation = Quaternion.Euler(0, 0f, 0f);
-                    firstSpawnedObject = Instantiate(m_firstPlacedPrefab, hitPose.position, rotation);
+                    firstSpawnedObject = Instantiate(firstPlacedPrefab, hitPose.position, rotation);
                 }
                 else if (secondSpawnedObject == null)
                 {
                     Quaternion rotation = Quaternion.Euler(0f, 0f, 0f);
-                    secondSpawnedObject = Instantiate(m_secondPlacedPrefab, hitPose.position, rotation);
+                    secondSpawnedObject = Instantiate(secondPlacedPrefab, hitPose.position, rotation);
                 }
                 else
                 {
                     Quaternion rotation = Quaternion.Euler(0f, 0f, 0f);
                     Destroy(secondSpawnedObject);
-                    secondSpawnedObject = Instantiate(m_secondPlacedPrefab, hitPose.position, rotation);
+                    secondSpawnedObject = Instantiate(secondPlacedPrefab, hitPose.position, rotation);
                 }
                 placementUpdate.Invoke();
             }
